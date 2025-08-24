@@ -1,6 +1,8 @@
 import tkinter as tk
 from sympy import sympify
 import re
+import random as rand
+import math
 
 class Calculator():
     def __init__(self):
@@ -9,22 +11,16 @@ class Calculator():
         self.root.geometry("400x775")
         self.root.title("Emotional Calculator")
 
-        self.calcTxt = ""
-        self.label = tk.Label(self.root, text=self.calcTxt, font=('Arial', 12))
-        self.label.pack()
+        self.calcTxt = tk.Label(self.root, text="Hello", font=('Arial', 12))
+        self.calcTxt.pack()
 
         self.txt = ""
         self.label = tk.Label(self.root, text=self.txt, font=('Arial', 18))
         self.label.pack()
 
-        self.frameUpper = tk.Frame(self.root)
-        self.frameUpper.pack(expand=True, fill="both")
-
         self.frame = tk.Frame(self.root)
         self.frame.pack(expand=True, fill="both")
 
-        self.frameUpper.columnconfigure(0, weight=1)
-        self.frameUpper.columnconfigure(1, weight=1)
         self.frame.columnconfigure(0, weight=1)
         self.frame.columnconfigure(1, weight=1)
         self.frame.columnconfigure(2, weight=1)
@@ -81,20 +77,28 @@ class Calculator():
         self.btnEquals = tk.Button(self.frame,text="=", bg="dark orange", font=('Arial',24), command=self.pressEquals)
         self.btnEquals.grid(row=5,column=3,sticky="news")
 
-        self.btnClear = tk.Button(self.frameUpper,text="C", bg="grey", font=('Arial',24), command=self.pressClear)
-        self.btnClear.grid(row=0,column=0,sticky="news")
+        self.btnLeftP = tk.Button(self.frame,text="(", bg="grey", font=('Arial',24), command=self.pressLParenthesis)
+        self.btnLeftP.grid(row=0,column=0,sticky="news")
 
-        self.btnDelete = tk.Button(self.frameUpper,text="⌫", bg="grey", font=('Arial',24), command=self.pressDelete)
-        self.btnDelete.grid(row=0,column=1,sticky="news")
+        self.btnRightP = tk.Button(self.frame,text=")", bg="grey", font=('Arial',24), command=self.pressRParenthesis)
+        self.btnRightP.grid(row=0,column=1,sticky="news")
+
+        self.btnClear = tk.Button(self.frame,text="C", bg="grey", font=('Arial',24), command=self.pressClear)
+        self.btnClear.grid(row=0,column=2,sticky="news")
+
+        self.btnDelete = tk.Button(self.frame,text="⌫", bg="grey", font=('Arial',24), command=self.pressDelete)
+        self.btnDelete.grid(row=0,column=3,sticky="news")
 
         self.btnFactorial = tk.Button(self.frame,text="()!", bg="grey", font=('Arial',24), command=self.pressFactorial)
         self.btnFactorial.grid(row=1,column=0,sticky="news")
 
-        self.btnExponent = tk.Button(self.frame,text="()ⁿ", bg="grey", font=('Arial',24), command=self.pressExponent)
+        self.btnExponent = tk.Button(self.frame,text="()²", bg="grey", font=('Arial',24), command=self.pressExponent)
         self.btnExponent.grid(row=1,column=1,sticky="news")
 
         self.btnSQRT = tk.Button(self.frame,text="√()", bg="grey", font=('Arial',24), command=self.pressSQRT)
         self.btnSQRT.grid(row=1,column=2,sticky="news")
+
+        self.previousRand = 0
 
         self.root.mainloop()
 
@@ -128,8 +132,6 @@ class Calculator():
     def pressZero(self):
         self.txt += "0"
         self.label.config(text=self.txt)
-    def pressNegative(self):
-        print(lastNumber(self.txt))
     def pressPlus(self):
         self.txt += "+"
         self.label.config(text=self.txt)
@@ -142,12 +144,35 @@ class Calculator():
     def pressDivide(self):
         self.txt += "÷"
         self.label.config(text=self.txt)
+    def pressLParenthesis(self):
+        self.txt += "("
+        self.label.config(text=self.txt)
+    def pressRParenthesis(self):
+        self.txt += ")"
+        self.label.config(text=self.txt)
     def pressEquals(self):
         self.txt = sympify(re.sub("×","*",re.sub("÷","/",self.txt))).evalf()
         self.txt = str(self.txt)
         if "." in self.txt:
             self.txt = self.txt.rstrip("0").rstrip(".")
         self.label.config(text=self.txt)
+        x = rand.randint(0,5)
+        while (x == self.previousRand):
+            x = rand.randint(0,5)
+        match x:
+            case 0:
+                self.calcTxt.config(text="You needed a calculator... for that?")
+            case 1:
+                self.calcTxt.config(text="Better hope Calculators are allowed on the test")
+            case 2:
+                self.calcTxt.config(text="Calc is short for Calculator chat.")
+            case 3:
+                self.calcTxt.config(text="Really putting my math degree to work.")
+            case 4:
+                self.calcTxt.config(text="Just checking 1+1 is still 2 headahh.")
+            case 5:
+                self.calcTxt.config(text="...")
+        self.previousRand = x
     def pressPeriod(self):
         self.txt += "."
         self.label.config(text=self.txt)
@@ -157,21 +182,53 @@ class Calculator():
     def pressDelete(self):
         self.txt = self.txt[:-1]
         self.label.config(text=self.txt)
+    def pressNegative(self):
+        x = lastNumber(self.txt)
+        print(x)
+        y = (x[0])
+        self.txt = self.txt[:-x[1]]
+        self.label.config(text=self.txt)
+        self.txt += "-("+str(y)+")"
+        self.label.config(text=self.txt)
     def pressFactorial(self):
-        print(lastNumber(self.txt))
-        self.txt += "."
+        x = lastNumber(self.txt)
+        print(x)
+        if (int(x[0])==x[0]):
+            y = str(math.factorial(int(x[0])))
+            self.txt = self.txt[:-x[1]]
+            self.label.config(text=self.txt)
+            self.txt += str(y)
+            self.label.config(text=self.txt)
+        else:
+            print("error")
+            self.calcTxt.config(text="I'm not doing a Gamma function for you...")
     def pressExponent(self):
-        print(lastNumber(self.txt))
+        x = lastNumber(self.txt)
+        print(x)
+        y = str(int(x[0])**2)
+        self.txt = self.txt[:-x[1]]
+        self.label.config(text=self.txt)
+        self.txt += str(y)
+        self.label.config(text=self.txt)
     def pressSQRT(self):
         x = lastNumber(self.txt)
-        self.txt = self.txt[:-x]
-        self.txt += self.txt[:lastNumber(self.txt)]
-
+        print(x)
+        if (x[0] >= 0):
+            y = str(math.sqrt(float(x[0])))
+            self.txt = self.txt[:-x[1]]
+            self.label.config(text=self.txt)
+            self.txt += str(y)
+            if "." in self.txt:
+                self.txt = self.txt.rstrip("0").rstrip(".")
+                self.label.config(text=self.txt)
+        else:
+            print("error")
+            self.calcTxt.config(text="You think you're ready for imaginary numbers? You're not even ready for real ones.")
 def lastNumber(expr: str):
     operators = ('+','-','÷','×','!','√')
     for i in range(len(expr)-1,-1,-1):
         if expr[i] in operators:
-            return float(expr[i+1:]) #will cause issues later
-    return len(expr)
+            return (float(expr[i+1:]),len(expr[i+1:]))
+    return (float(expr),len(expr))
 
 Calculator()
